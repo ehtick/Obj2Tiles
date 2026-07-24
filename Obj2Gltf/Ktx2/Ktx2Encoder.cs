@@ -101,8 +101,10 @@ namespace SilentWave.Obj2Gltf.Ktx2
         [DllImport("ktx", CallingConvention = CallingConvention.Cdecl)]
         private static extern int ktxTexture2_CompressBasisEx(IntPtr texture, ref KtxBasisParams parameters);
 
+        // libktx decodes this path with MultiByteToWideChar(CP_UTF8, ...) on Windows and passes it
+        // straight to fopen on other platforms, so it must be marshalled as UTF-8 (not the ANSI LPStr).
         [DllImport("ktx", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ktxTexture2_WriteToNamedFile(IntPtr texture, [MarshalAs(UnmanagedType.LPStr)] string dstname);
+        private static extern int ktxTexture2_WriteToNamedFile(IntPtr texture, [MarshalAs(UnmanagedType.LPUTF8Str)] string dstname);
 
         [DllImport("ktx", CallingConvention = CallingConvention.Cdecl)]
         private static extern void ktxTexture2_Destroy(IntPtr texture);
@@ -251,7 +253,17 @@ namespace SilentWave.Obj2Gltf.Ktx2
                     err = ktxTexture2_CompressBasisEx(texture, ref basisParams);
                     Check(err, "ktxTexture2_CompressBasisEx");
 
-                    err = ktxTexture2_WriteToNamedFile(texture, outputKtx2Path);
+                    var outputDir = Path.GetDirectoryName(outputKtx2Path);
+                    if (!string.IsNullOrEmpty(outputDir))
+                        Directory.CreateDirectory(outputDir);
+
+                    // Write straight to the destination through libktx. On Windows the path is given
+                    // the \\?\ extended-length prefix: libktx opens files with _wfopen_s (via
+                    // MultiByteToWideChar(CP_UTF8, ...)), which honours that prefix and lifts the
+                    // 260-char MAX_PATH limit that otherwise yields KTX_FILE_OPEN_FAILED (code 3).
+                    // Writing directly (rather than to a temp file or memory buffer) keeps the fast
+                    // path, avoids Defender-scanned %TEMP% churn, and never hand-manages native memory.
+                    err = ktxTexture2_WriteToNamedFile(texture, ToNativeLongPath(outputKtx2Path));
                     Check(err, "ktxTexture2_WriteToNamedFile");
                 }
                 finally
@@ -390,6 +402,27 @@ namespace SilentWave.Obj2Gltf.Ktx2
                 message = null;
             }
             throw new InvalidOperationException($"{what} failed: {message ?? ("KTX error " + err)} (code {err}).");
+        }
+
+        // Returns a path safe to hand to libktx's file writer. On Windows the destination is
+        // normalised and given the \\?\ extended-length prefix so libktx's _wfopen_s can open paths
+        // longer than MAX_PATH (260). Other platforms need no prefix - fopen already accepts long
+        // UTF-8 paths up to PATH_MAX. Already-prefixed or non-rooted paths are returned unchanged.
+        private static string ToNativeLongPath(string path)
+        {
+            if (!OperatingSystem.IsWindows())
+                return path;
+
+            if (path.StartsWith(@"\\?\", StringComparison.Ordinal))
+                return path;
+
+            var full = Path.GetFullPath(path);
+
+            // UNC share (\\server\share\...) uses the \\?\UNC\ form.
+            if (full.StartsWith(@"\\", StringComparison.Ordinal))
+                return @"\\?\UNC\" + full.Substring(2);
+
+            return @"\\?\" + full;
         }
     }
 }
