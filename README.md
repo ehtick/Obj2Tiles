@@ -86,6 +86,7 @@ By default Obj2Tiles writes a loose folder tree (`tileset.json`, `LOD-*/` and `r
 |-----------|---------|-------------|---------|
 | `--3tz` | `false` | Produce a single `.3tz` archive instead of a folder tree (implied by a `.3tz` output path). When set without a `.3tz` extension, the archive is written to `<output>.3tz` | `--3tz` |
 | `--3tz-compression` | `6` | DEFLATE level for `.3tz` content, `0`-`9` (gzip-style), see table below. The index is always stored uncompressed | `--3tz-compression 9` |
+| `--no-root-content` | `false` | Omit `root.b3dm` and emit a legal contentless tileset root. Useful when only separately audited child tiles should be published, but requires a renderer that descends into children of contentless roots | `--no-root-content` |
 
 **Compression levels (`--3tz-compression`):**
 

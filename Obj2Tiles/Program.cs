@@ -151,7 +151,7 @@ namespace Obj2Tiles
                 // which keeps it as a single mesh but compresses its textures, so the bootstrap root tile
                 // stays small instead of embedding the full-resolution source textures.
                 string? rootSourceObj = null;
-                if (decimateRes.DestFiles.Length > 0)
+                if (!opts.NoRootContent && decimateRes.DestFiles.Length > 0)
                 {
                     rootSourceObj = decimateRes.DestFiles[^1];
                     try
