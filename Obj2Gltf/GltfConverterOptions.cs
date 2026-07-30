@@ -44,7 +44,7 @@ namespace SilentWave.Obj2Gltf
         public int Ktx2CompressionLevel { get; set; } = 1;
 
         /// <summary>
-        /// Number of encoder threads per ktx invocation. 0 lets ktx pick (hardware concurrency).
+        /// Number of encoder threads per KTX2 texture. 0 preserves the current single-threaded default.
         /// </summary>
         public int Ktx2Threads { get; set; } = 0;
 

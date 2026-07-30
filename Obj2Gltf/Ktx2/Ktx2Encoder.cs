@@ -263,7 +263,17 @@ namespace SilentWave.Obj2Gltf.Ktx2
 
                     if (options.Ktx2ZstdLevel > 0)
                     {
-                        err = ktxTexture2_DeflateZstd(texture, (uint)options.Ktx2ZstdLevel);
+                        try
+                        {
+                            err = ktxTexture2_DeflateZstd(texture, (uint)options.Ktx2ZstdLevel);
+                        }
+                        catch (EntryPointNotFoundException ex)
+                        {
+                            throw new InvalidOperationException(
+                                "KTX2 Zstd supercompression was requested (--ktx2-zstd-level) but the loaded " +
+                                "libktx does not export ktxTexture2_DeflateZstd. Upgrade libktx to a build with " +
+                                "Zstd supercompression support, or disable --ktx2-zstd-level.", ex);
+                        }
                         Check(err, "ktxTexture2_DeflateZstd");
                     }
 
