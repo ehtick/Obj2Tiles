@@ -205,6 +205,7 @@ namespace Obj2Tiles
                         EncodeKtx2 = true,
                         Ktx2Uastc = opts.Ktx2Uastc,
                         Ktx2QualityLevel = opts.Ktx2Quality,
+                        Ktx2Threads = opts.Ktx2Threads,
                         KtxToolPath = opts.KtxPath
                     };
                 }
@@ -328,6 +329,18 @@ namespace Obj2Tiles
             if (opts.LodTextureScale is <= 0 or > 1)
             {
                 Console.WriteLine(" !> --lod-texture-scale must be in the (0, 1] range");
+                return false;
+            }
+
+            if (opts.Ktx2Threads < 0)
+            {
+                Console.WriteLine(" !> --ktx2-threads must be non-negative (0 preserves the current default)");
+                return false;
+            }
+
+            if (opts.Ktx2Threads > 0 && opts.TextureFormat != TextureFormat.Ktx2)
+            {
+                Console.WriteLine(" !> --ktx2-threads requires --texture-format Ktx2");
                 return false;
             }
 

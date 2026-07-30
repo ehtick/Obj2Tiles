@@ -65,6 +65,7 @@ Controls how repacked texture atlases are encoded.
 | `--max-texture-size` | `4096` | Maximum texture atlas resolution per side (pixels). Source textures larger than this are downscaled. `0` disables the cap | `--max-texture-size 2048` |
 | `--ktx2-quality` | `128` | KTX2 ETC1S/BasisLZ quality (1-255; higher = better quality, larger files). Reinterpreted as UASTC quality (0-4) when `--ktx2-uastc` is set. Only used with `--texture-format Ktx2` | `--ktx2-quality 200` |
 | `--ktx2-uastc` | `false` | Use UASTC instead of ETC1S/BasisLZ for KTX2 textures. UASTC transcodes to BC7/ASTC for near-lossless quality at ~3x the size of ETC1S. Only used with `--texture-format Ktx2` | `--ktx2-uastc` |
+| `--ktx2-threads` | `0` | Number of libktx encoder threads per texture. `0` preserves the current default of one encoder thread per texture; positive values require `--texture-format Ktx2` | `--ktx2-threads 4` |
 | `--ktx-path` |  | Path to the libktx native library or its directory. When omitted, resolved from `OBJ2TILES_KTX`, then the executable directory (where the bundled lib lives), then system `PATH`. Only used with `--texture-format Ktx2` | `--ktx-path /usr/lib/libktx.so` |
 
 ### Geo-referencing
@@ -188,6 +189,8 @@ The `--texture-format Ktx2` option encodes every texture atlas as **KTX2 with Ba
 |------|------|---------------|---------------|----------|
 | **ETC1S / BasisLZ** (default) | *(none)* | `--ktx2-quality 1-255` | ETC2, BC1/BC3, PVRTC | Smallest files, maximum hardware compatibility |
 | **UASTC** | `--ktx2-uastc` | `--ktx2-quality 0-4` | BC7, ASTC, ETC2 | Near-lossless quality, ~3x larger than ETC1S |
+
+Obj2Tiles already converts multiple tiles concurrently. `--ktx2-threads N` additionally gives each active texture encode `N` libktx worker threads; leave it at `0` to retain the current one-thread-per-texture behavior, or raise it cautiously to avoid oversubscribing the machine.
 
 **Renderer requirements:**
 
