@@ -49,6 +49,11 @@ namespace SilentWave.Obj2Gltf
         public int Ktx2Threads { get; set; } = 0;
 
         /// <summary>
+        /// Zstandard supercompression level [1,22] for UASTC KTX2 textures. 0 disables it.
+        /// </summary>
+        public int Ktx2ZstdLevel { get; set; } = 0;
+
+        /// <summary>
         /// Optional path to the native KTX-Software library (libktx: ktx.dll / libktx.so / libktx.dylib)
         /// or the directory containing it, used for KTX2 encoding via P/Invoke. When null the library is
         /// resolved from the OBJ2TILES_KTX environment variable, next to the executable, or on the

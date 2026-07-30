@@ -65,6 +65,7 @@ Controls how repacked texture atlases are encoded.
 | `--max-texture-size` | `4096` | Maximum texture atlas resolution per side (pixels). Source textures larger than this are downscaled. `0` disables the cap | `--max-texture-size 2048` |
 | `--ktx2-quality` | `128` | KTX2 ETC1S/BasisLZ quality (1-255; higher = better quality, larger files). Reinterpreted as UASTC quality (0-4) when `--ktx2-uastc` is set. Only used with `--texture-format Ktx2` | `--ktx2-quality 200` |
 | `--ktx2-uastc` | `false` | Use UASTC instead of ETC1S/BasisLZ for KTX2 textures. UASTC transcodes to BC7/ASTC for near-lossless quality at ~3x the size of ETC1S. Only used with `--texture-format Ktx2` | `--ktx2-uastc` |
+| `--ktx2-zstd-level` | `0` | Zstandard supercompression level for UASTC KTX2 textures (`1`-`22`; `0` disables). Requires `--texture-format Ktx2` and `--ktx2-uastc`; levels above `20` use substantially more memory | `--ktx2-zstd-level 18` |
 | `--ktx-path` |  | Path to the libktx native library or its directory. When omitted, resolved from `OBJ2TILES_KTX`, then the executable directory (where the bundled lib lives), then system `PATH`. Only used with `--texture-format Ktx2` | `--ktx-path /usr/lib/libktx.so` |
 
 ### Geo-referencing
@@ -189,6 +190,8 @@ The `--texture-format Ktx2` option encodes every texture atlas as **KTX2 with Ba
 | **ETC1S / BasisLZ** (default) | *(none)* | `--ktx2-quality 1-255` | ETC2, BC1/BC3, PVRTC | Smallest files, maximum hardware compatibility |
 | **UASTC** | `--ktx2-uastc` | `--ktx2-quality 0-4` | BC7, ASTC, ETC2 | Near-lossless quality, ~3x larger than ETC1S |
 
+UASTC data can optionally be losslessly supercompressed with Zstandard by setting `--ktx2-zstd-level 1-22`. Higher levels trade encoding time and memory for smaller files; levels above 20 require substantially more memory. ETC1S already uses BasisLZ supercompression and cannot be combined with Zstandard.
+
 **Renderer requirements:**
 
 Not all renderers support `KHR_texture_basisu`. Verified to work: CesiumJS, CesiumNative, Babylon.js, three.js (with `KTX2Loader`), and most WebGPU-capable renderers. Use `--texture-format Jpeg` (the default) for environments where `KHR_texture_basisu` support is uncertain.
@@ -266,6 +269,12 @@ UASTC mode for near-lossless quality targeting BC7/ASTC renderers (larger files)
 
 ```bash
 Obj2Tiles --texture-format Ktx2 --ktx2-uastc --ktx2-quality 3 --local model.obj ./output
+```
+
+Add lossless Zstandard supercompression to UASTC output:
+
+```bash
+Obj2Tiles --texture-format Ktx2 --ktx2-uastc --ktx2-quality 3 --ktx2-zstd-level 18 --local model.obj ./output
 ```
 
 Cap atlas size to 2048 px and raise JPEG quality for the default format:

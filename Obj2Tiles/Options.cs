@@ -79,6 +79,9 @@ public sealed class Options
     [Option("ktx2-uastc", Required = false, HelpText = "Use UASTC (higher quality, larger, transcodes to BC7/ASTC) instead of the default ETC1S/BasisLZ mode for KTX2 textures.", Default = false)]
     public bool Ktx2Uastc { get; set; }
 
+    [Option("ktx2-zstd-level", Required = false, HelpText = "Zstandard supercompression level for UASTC KTX2 textures (1-22; 0 disables). Requires --texture-format Ktx2 and --ktx2-uastc.", Default = 0)]
+    public int Ktx2ZstdLevel { get; set; }
+
     [Option("ktx-path", Required = false, HelpText = "Explicit path to the libktx native library (ktx.dll / libktx.so / libktx.dylib) or the directory containing it, used for --texture-format Ktx2. When omitted it is resolved from the OBJ2TILES_KTX environment variable, next to the executable (bundled), or on the system library path.", Default = null)]
     public string? KtxPath { get; set; }
 
