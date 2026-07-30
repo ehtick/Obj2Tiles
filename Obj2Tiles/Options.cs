@@ -61,6 +61,9 @@ public sealed class Options
     [Option("octree", Required = false, HelpText = "Use octree spatial subdivision: each LOD gets one additional division level relative to the next coarser LOD, producing a proper tile hierarchy instead of same-count tiles per LOD.", Default = false)]
     public bool Octree { get; set; }
 
+    [Option("no-root-content", Required = false, HelpText = "Omit root.b3dm and emit a content-less tileset root. Requires a renderer that descends into children of content-less roots.", Default = false)]
+    public bool NoRootContent { get; set; }
+
     [Option("lod-texture-scale", Required = false, HelpText = "Per-LOD texture downscale factor. LOD-0 keeps full resolution (subject to --max-texture-size); each subsequent LOD multiplies the previous resolution by this factor. E.g. 0.5 gives LOD-1 at 1/2 resolution, LOD-2 at 1/4, etc. Use 1.0 to disable per-LOD downscaling.", Default = 0.5)]
     public double LodTextureScale { get; set; }
 
